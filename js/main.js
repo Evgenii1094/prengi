@@ -1,39 +1,3 @@
-$(document).ready(function(){
-    $('ul.tabs-link').on('click', 'li:not(.catalog-tab-active)', function() {
-        $(this)
-          .addClass('catalog-tab-active').siblings().removeClass('catalog-tab-active')
-          .closest('div.tabs').find('div.tabs-container-item').removeClass('tabs-active').eq($(this).index()).addClass('tabs-active');
-      });
-  });
-
-  $('[data-modal=order]').on('click', function() {
-    $('.overlay, #order').fadeIn('slow');
-});
-$('.modal-close').on('click', function() {
-    $('.overlay, #order, #callback').fadeOut('slow');
-});
-
-$('.btn-mini').each(function(i) {
-    $(this).on('click', function() {
-        $('#order .modal-descr').text($('').eq(i).text());
-        $('.overlay, #order').fadeIn('slow');
-    })
-});
-
-$('.scrollto a').on('click', function() {
-
-    let href = $(this).attr('href');
-
-    $('html, body').animate({
-        scrollTop: $(href).offset().top
-    }, {
-        duration: 350,   // по умолчанию «400» 
-        easing: "linear" // по умолчанию «swing» 
-    });
-
-    return false;
-});
-
 function valideForms(form){
     $(form).validate({
         rules: {
@@ -48,16 +12,117 @@ function valideForms(form){
 };
 valideForms('#order form');
 
-$(".form-phone").mask("+38 (999) 999-99-99");
+window.addEventListener('DOMContentLoaded', () => {
+    const hamburgerMenu = document.querySelector('.overlay-hamburger'),
+          hamburgerBtn = document.querySelector('#mobile-menu-btn'),
+          hamburgerClosed = document.querySelector('.hamburger-close'),
+          modalOpen = document.querySelectorAll('[data-modal]'),
+          modalClose = document.querySelector('.modal-close'),
+          modal = document.querySelector('.overlay'),
+          tabs = document.querySelectorAll('.catalog-tab'),
+          tabContent = document.querySelectorAll('.tabs-container-item'),
+          tabParent = document.querySelector('.tabs-link'),
+          anchors = document.querySelectorAll('a[href*="#"]');
 
-// $('#mobile-menu-btn').click(function(){
-//     $(this).toggleClass('active');
-//     $('.mobile-menu-container').toggleClass('active');
-// });
+    function openWindow(item) {
+        item.classList.remove('hide');
+        item.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 
-$('[data-modal=burger]').on('click', function() {
-    $('.overlay-hamburger, #hamburger-mobile').fadeIn('slow');
-});
-$('.button-mobile, .hamburger-close').on('click', function() {
-    $('.overlay-hamburger, #hamburger-mobile').fadeOut('slow');
+    function closedWindow(item) {
+        item.classList.remove('show');
+        item.classList.add('hide');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+        openWindow(hamburgerMenu);
+    });
+
+    hamburgerClosed.addEventListener('click', () => {
+        closedWindow(hamburgerMenu);
+    });
+
+    hamburgerMenu.addEventListener('click', (e) => {
+        if(e.target === hamburgerMenu) {
+            closedWindow(hamburgerMenu);
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') {
+            closedWindow(hamburgerMenu);
+        }
+    });
+
+    modalOpen.forEach(item => {
+        item.addEventListener('click', () => {
+            openWindow(modal);
+        });
+    });
+
+    modalClose.addEventListener('click', () => {
+        closedWindow(modal);
+    });
+
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal) {
+            closedWindow(modal);
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') {
+            closedWindow(modal);
+        }
+    });
+
+    // Tabs
+    function hideTabContent() {
+        tabContent.forEach(item => {
+            item.classList.add('hide');
+            item.classList.remove('show');
+        });
+
+        tabs.forEach(item => {
+           item.classList.remove('catalog-tab-active');
+        });
+    }
+
+    function showTabContent(i = 0) {
+        tabContent[i].classList.add('show');
+        tabContent[i].classList.remove('hide');
+        tabs[i].classList.add('catalog-tab-active');
+    }
+
+    tabParent.addEventListener('click', (e) => {
+        const target = e.target;
+
+        if(target && target.classList.contains('catalog-tab')) {
+            tabs.forEach((item, i) => {
+                if(target == item) {
+                    hideTabContent();
+                    showTabContent(i);
+                }
+            });
+        }
+    });
+
+    hideTabContent();
+    showTabContent();
+
+    // Scrolling
+    for (let anchor of anchors) {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault()
+            
+            const blockID = anchor.getAttribute('href').substr(1);
+            
+            document.getElementById(blockID).scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
+    }
 });
